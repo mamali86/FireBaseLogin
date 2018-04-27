@@ -9,8 +9,9 @@
 import UIKit
 import FBSDKLoginKit
 import Firebase
+import GoogleSignIn
 
-class ViewController: UIViewController, FBSDKLoginButtonDelegate {
+class ViewController: UIViewController, FBSDKLoginButtonDelegate , GIDSignInUIDelegate{
     
     let loginButton = FBSDKLoginButton()
     
@@ -25,21 +26,32 @@ class ViewController: UIViewController, FBSDKLoginButtonDelegate {
     
     }()
     
+ 
+    let GoogleButton = GIDSignInButton()
+    
+    let customGoogleButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+                button.addTarget(self, action: #selector(handleCustomGoogleLogin), for: .touchUpInside)
+        button.setTitle("custom Google Login", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .orange
+        return button
+        
+    }()
     
 
-
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         view.backgroundColor = .white
         navigationController?.isNavigationBarHidden = true
         
-        setUpLoginButtons()
-        
+        setupFacebookLoginButtons()
+        setupGoogleLoginButtons()
     }
     
-    fileprivate func setUpLoginButtons() {
+    fileprivate func setupFacebookLoginButtons() {
         view.addSubview(loginButton)
         loginButton.frame = CGRect(x: 16, y: 50, width: view.frame.width - 32, height: 50)
         
@@ -48,6 +60,18 @@ class ViewController: UIViewController, FBSDKLoginButtonDelegate {
         
         loginButton.delegate = self
         loginButton.readPermissions = ["email", "public_profile"]
+    }
+    
+    fileprivate func setupGoogleLoginButtons() {
+        
+        view.addSubview(GoogleButton)
+        GoogleButton.frame = CGRect(x: 16, y: 116 + 66, width: view.frame.width - 32, height: 50)
+        GIDSignIn.sharedInstance().uiDelegate = self
+        
+        
+        view.addSubview(customGoogleButton)
+        customGoogleButton.frame = CGRect(x: 16, y: 116 + 66 + 66, width: view.frame.width - 32, height: 50)
+    
     }
     
     
@@ -64,6 +88,16 @@ class ViewController: UIViewController, FBSDKLoginButtonDelegate {
         }
     
     }
+    
+    
+    @objc fileprivate func handleCustomGoogleLogin() {
+    
+      GIDSignIn.sharedInstance().signIn()
+    }
+    
+    
+    
+    
     
     func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!) {
         print("Did Log Out")
